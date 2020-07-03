@@ -1,0 +1,60 @@
+version: "3"
+#docker-compose -p fwtl -f "docker-compose.yaml" up -d --build
+
+services:
+  seq:
+    image: datalust/seq:latest
+    container_name: "FWTL-seq"
+    ports:
+      - "5341:80"
+    environment:
+      ACCEPT_EULA: "Y"
+    volumes:
+      - FWTL-data:/data
+    networks:
+      - backend
+  sql:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    container_name: "FWTL-sql"
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "KQlqqjercDE7d4YSF3O"
+    volumes:
+      - FWTL-sql-data:/var/opt/mssql
+    networks:
+      - backend
+  telegram-api-server:
+    image: xtrime/telegram-api-server
+    container_name: FWTL-telegram-api-server
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9503:9503"
+    volumes:
+      - "FWTL-sessions:/app/sessions"
+    #  - "FWTL-data:/app/.env"
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: "FWTL-rabbitmq"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    #volumes:
+      #- FWTL-data:/var/lib/rabbitmq
+    networks:
+      - backend
+
+volumes:
+  FWTL-sql-data:
+  FWTL-data:
+  FWTL-sessions:
+
+networks:
+  backend:
+  frontend:

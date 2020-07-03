@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  fwtl-api:
+    build: ./src
+    container_name: "FWTL-api"
+    depends_on:
+      - sql
+      - rabbitmq
+    ports:
+      - "5001:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=$ASPNETCORE_ENVIRONMENT
+    networks:
+      - backend
